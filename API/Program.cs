@@ -10,10 +10,12 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 {
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+builder.Services.AddCors();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+// il faut ajouter ici les Middleware: /!\ l'ordre est important pour leur exécution
 
 // Pas besoin de redirection car on utilise uniquement du Https pas de http
 //app.UseHttpsRedirection();
@@ -21,8 +23,11 @@ var app = builder.Build();
 // No need for the moment
 //app.UseAuthorization();
 
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
+    .WithOrigins("http://localhost:3000", "https://localhost:3000"));
 // fait le lien entre endPoint et controller
 app.MapControllers();
+
 // ce code sera exécuté au lancement de l'application
 // le scope sera nettoyé par le GC dès qu'on aura fini avec
 using var scope = app.Services.CreateScope();
